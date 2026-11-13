@@ -100,11 +100,11 @@ export function setCloudScriptUrl(url: string): void {
 }
 
 export function getAdminPin(): string {
-  return localStorage.getItem(ADMIN_PIN_KEY) || '1234';
+  return localStorage.getItem(ADMIN_PIN_KEY) || '8688';
 }
 
 export function setAdminPin(pin: string): void {
-  localStorage.setItem(ADMIN_PIN_KEY, pin.trim() || '1234');
+  localStorage.setItem(ADMIN_PIN_KEY, pin.trim() || '8688');
 }
 
 export function buildSubmissionRecord(

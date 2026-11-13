@@ -127,7 +127,7 @@ export const TeacherAdminDashboard: React.FC = () => {
       setAuthenticated(true);
       setPinError('');
     } else {
-      setPinError('비밀번호가 일치하지 않습니다. (초기 기본값: 1234)');
+      setPinError('비밀번호가 일치하지 않습니다.');
     }
   };
 
@@ -247,7 +247,7 @@ export const TeacherAdminDashboard: React.FC = () => {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              교사 인증 비밀번호 입력 (기본값: <code className="text-indigo-600">1234</code>)
+              교사 인증 비밀번호 입력
             </label>
             <input
               type="password"

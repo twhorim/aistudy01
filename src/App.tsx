@@ -21,6 +21,7 @@ import {
 } from './types/simulator';
 import {
   clearStudentSession,
+  createInitialProgress,
   loadAllProgress,
   loadStudentInfo,
   parseSchoolClassFromId,
@@ -69,6 +70,17 @@ export function App() {
     }
   };
 
+  const resetStudentSession = () => {
+    clearStudentSession();
+    setStudent(null);
+    setStudentIdInput('');
+    setNameInput('');
+    setClassInput('');
+    setProgress(createInitialProgress());
+    setActiveAlgId('linear-regression');
+    setSubmittedModalData(null);
+  };
+
   const handleStartStudentSession = (e: React.FormEvent) => {
     e.preventDefault();
     const sId = studentIdInput.trim();
@@ -82,7 +94,10 @@ export function App() {
       name: sName,
       schoolClass: classInput.trim() || parseSchoolClassFromId(sId),
     };
+    clearStudentSession();
     saveStudentInfo(info);
+    setProgress(createInitialProgress());
+    setActiveAlgId('linear-regression');
     setStudent(info);
     setLoginError('');
   };
@@ -278,14 +293,12 @@ export function App() {
                   </span>
                   <button
                     type="button"
-                    onClick={() => {
-                      clearStudentSession();
-                      setStudent(null);
-                    }}
-                    className="text-slate-400 hover:text-rose-600 ml-1 cursor-pointer"
-                    title="학번/이름 다시 입력"
+                    onClick={resetStudentSession}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-200 ml-1 cursor-pointer font-semibold transition"
+                    title="진행 내역 전체 초기화 및 다음 학생 교대"
                   >
-                    <LogOut className="w-3.5 h-3.5" />
+                    <LogOut className="w-3 h-3" />
+                    초기화
                   </button>
                 </div>
 
@@ -543,6 +556,7 @@ export function App() {
           record={submittedModalData.record}
           cloudSynced={submittedModalData.cloudSynced}
           onClose={() => setSubmittedModalData(null)}
+          onFinishAndReset={resetStudentSession}
         />
       )}
     </div>

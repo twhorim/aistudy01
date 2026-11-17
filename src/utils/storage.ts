@@ -50,45 +50,40 @@ export function parseSchoolClassFromId(studentId: string): string {
 }
 
 export function loadStudentInfo(): StudentInfo | null {
+  // 공용 노트북 환경 보호: 접속/새로고침 시 이전 학생 정보가 남아있지 않도록 항상 초기화
   try {
-    const raw = localStorage.getItem(STUDENT_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as StudentInfo;
+    localStorage.removeItem(STUDENT_KEY);
+    localStorage.removeItem(PROGRESS_KEY);
   } catch {
-    return null;
+    // ignore storage errors
   }
+  return null;
 }
 
-export function saveStudentInfo(info: StudentInfo): void {
-  localStorage.setItem(STUDENT_KEY, JSON.stringify(info));
+export function saveStudentInfo(_info: StudentInfo): void {
+  // 공용 PC에서 브라우저에 학생 개인정보를 남기지 않음 (메모리 상태만 유지)
 }
 
 export function clearStudentSession(): void {
-  localStorage.removeItem(STUDENT_KEY);
+  try {
+    localStorage.removeItem(STUDENT_KEY);
+    localStorage.removeItem(PROGRESS_KEY);
+  } catch {
+    // ignore storage errors
+  }
 }
 
 export function loadAllProgress(): Record<AlgorithmId, AlgorithmProgress> {
   try {
-    const raw = localStorage.getItem(PROGRESS_KEY);
-    const base = createInitialProgress();
-    if (!raw) return base;
-    const parsed = JSON.parse(raw) as Partial<Record<AlgorithmId, AlgorithmProgress>>;
-    for (const alg of ALGORITHMS) {
-      if (parsed[alg.id]) {
-        base[alg.id] = {
-          ...base[alg.id],
-          ...parsed[alg.id],
-        };
-      }
-    }
-    return base;
+    localStorage.removeItem(PROGRESS_KEY);
   } catch {
-    return createInitialProgress();
+    // ignore storage errors
   }
+  return createInitialProgress();
 }
 
-export function saveAllProgress(progress: Record<AlgorithmId, AlgorithmProgress>): void {
-  localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+export function saveAllProgress(_progress: Record<AlgorithmId, AlgorithmProgress>): void {
+  // 공용 PC에서 이전 학생의 실습 체크 내역이 다음 학생에게 남지 않도록 로컬스토리지 저장 안 함
 }
 
 export function getCloudScriptUrl(): string {

@@ -7,12 +7,14 @@ interface Props {
   record: StudentSubmissionRecord;
   cloudSynced: boolean;
   onClose: () => void;
+  onFinishAndReset: () => void;
 }
 
 export const StudentReportModal: React.FC<Props> = ({
   record,
   cloudSynced,
   onClose,
+  onFinishAndReset,
 }) => {
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -108,11 +110,11 @@ export const StudentReportModal: React.FC<Props> = ({
           </div>
         </div>
 
-        <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
           <span className="text-xs text-slate-500">
             제출 일시: {new Date(record.submittedAt).toLocaleString('ko-KR')}
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => window.print()}
@@ -124,9 +126,16 @@ export const StudentReportModal: React.FC<Props> = ({
             <button
               type="button"
               onClick={onClose}
+              className="px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer"
+            >
+              이어서 더 실습하기
+            </button>
+            <button
+              type="button"
+              onClick={onFinishAndReset}
               className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition cursor-pointer"
             >
-              확인 완료
+              제출 완료 및 처음 화면으로 (초기화)
             </button>
           </div>
         </div>

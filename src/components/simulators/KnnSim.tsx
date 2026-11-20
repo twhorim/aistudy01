@@ -9,23 +9,40 @@ interface FruitSample {
 }
 
 const INITIAL_FRUITS: FruitSample[] = [
-  // 사과 (대체로 크기가 크고 당도가 중간~높음)
+  // 사과 15개 (대체로 크기가 크고 당도가 중간~높음)
   { id: 1, x: 5.8, y: 7.5, label: 'apple' },
   { id: 2, x: 6.8, y: 8.2, label: 'apple' },
   { id: 3, x: 7.5, y: 6.8, label: 'apple' },
   { id: 4, x: 8.2, y: 7.9, label: 'apple' },
   { id: 5, x: 6.2, y: 6.4, label: 'apple' },
   { id: 6, x: 7.1, y: 5.8, label: 'apple' },
+  { id: 7, x: 8.8, y: 8.6, label: 'apple' },
+  { id: 8, x: 7.9, y: 9.0, label: 'apple' },
+  { id: 9, x: 6.4, y: 8.8, label: 'apple' },
+  { id: 10, x: 8.6, y: 6.4, label: 'apple' },
+  { id: 11, x: 9.1, y: 7.3, label: 'apple' },
+  { id: 12, x: 5.4, y: 8.3, label: 'apple' },
+  { id: 13, x: 6.7, y: 7.1, label: 'apple' },
+  { id: 14, x: 7.4, y: 5.2, label: 'apple' },
   // 경계 근처 노이즈성 데이터 (K=1과 K=5의 차이를 체감하기 좋음)
-  { id: 7, x: 4.9, y: 4.8, label: 'apple' },
-  // 한라봉/귤 (대체로 크기가 작거나 당도가 다양함)
-  { id: 8, x: 2.5, y: 3.2, label: 'tangerine' },
-  { id: 9, x: 3.4, y: 4.1, label: 'tangerine' },
-  { id: 10, x: 4.2, y: 3.5, label: 'tangerine' },
-  { id: 11, x: 3.8, y: 5.2, label: 'tangerine' },
-  { id: 12, x: 5.2, y: 3.9, label: 'tangerine' },
-  { id: 13, x: 4.5, y: 5.5, label: 'tangerine' },
-  { id: 14, x: 6.0, y: 4.2, label: 'tangerine' },
+  { id: 15, x: 4.9, y: 4.8, label: 'apple' },
+
+  // 한라봉/귤 15개 (대체로 크기가 작거나 당도가 낮음~중간)
+  { id: 16, x: 2.5, y: 3.2, label: 'tangerine' },
+  { id: 17, x: 3.4, y: 4.1, label: 'tangerine' },
+  { id: 18, x: 4.2, y: 3.5, label: 'tangerine' },
+  { id: 19, x: 3.8, y: 5.2, label: 'tangerine' },
+  { id: 20, x: 5.2, y: 3.9, label: 'tangerine' },
+  { id: 21, x: 4.5, y: 5.5, label: 'tangerine' },
+  { id: 22, x: 6.0, y: 4.2, label: 'tangerine' },
+  { id: 23, x: 1.6, y: 2.4, label: 'tangerine' },
+  { id: 24, x: 2.1, y: 4.6, label: 'tangerine' },
+  { id: 25, x: 2.9, y: 1.8, label: 'tangerine' },
+  { id: 26, x: 3.6, y: 2.5, label: 'tangerine' },
+  { id: 27, x: 4.8, y: 2.3, label: 'tangerine' },
+  { id: 28, x: 1.8, y: 3.8, label: 'tangerine' },
+  { id: 29, x: 3.1, y: 5.8, label: 'tangerine' },
+  { id: 30, x: 5.6, y: 2.9, label: 'tangerine' },
 ];
 
 interface Props {
@@ -174,18 +191,28 @@ export const KnnSim: React.FC<Props> = ({ onCompleteMission }) => {
       ctx.stroke();
     }
 
-    // 타겟 데이터 (★ 모양 대신 눈에 잘 띄는 보라색 링+중심점)
-    ctx.fillStyle = neighborsInfo.winner === 'apple' ? '#ef4444' : '#f59e0b';
+    // 새로 들어온 테스트 데이터 (기존 사과/한라봉과 확실히 구분되는 선명한 파란색 + 외곽 후광 링)
+    ctx.fillStyle = 'rgba(37, 99, 235, 0.22)';
     ctx.beginPath();
-    ctx.arc(tx, ty, 11, 0, Math.PI * 2);
+    ctx.arc(tx, ty, 17, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = '#1e1b4b';
-    ctx.lineWidth = 3;
+
+    ctx.fillStyle = '#2563eb';
+    ctx.beginPath();
+    ctx.arc(tx, ty, 11.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.5;
     ctx.stroke();
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 11px sans-serif';
     ctx.fillText('★', tx - 5.5, ty + 4);
+
+    // 새 데이터 라벨 태그
+    ctx.fillStyle = '#1d4ed8';
+    ctx.font = 'bold 11px Pretendard, sans-serif';
+    ctx.fillText('NEW', tx - 13, ty - 16);
   }, [samples, target, kValue, metric, showBoundary, neighborsInfo, calcDist]);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -289,10 +316,13 @@ export const KnnSim: React.FC<Props> = ({ onCompleteMission }) => {
             </span>
             <div className="flex items-center gap-3">
               <span className="inline-flex items-center gap-1 font-medium text-red-600">
-                ● 사과(Apple)
+                ● 사과 ({samples.filter((s) => s.label === 'apple').length}개)
               </span>
               <span className="inline-flex items-center gap-1 font-medium text-amber-600">
-                ● 한라봉(Tangerine)
+                ● 한라봉 ({samples.filter((s) => s.label === 'tangerine').length}개)
+              </span>
+              <span className="inline-flex items-center gap-1 font-bold text-blue-600">
+                ★ 새 데이터
               </span>
             </div>
           </div>

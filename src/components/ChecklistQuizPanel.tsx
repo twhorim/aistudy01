@@ -9,11 +9,12 @@ import {
   Lock,
 } from 'lucide-react';
 import { AlgorithmMeta, AlgorithmProgress } from '../types/simulator';
+import { isQuizAnswerCorrect } from '../data/algorithms';
 
 interface Props {
   algorithm: AlgorithmMeta;
   progress: AlgorithmProgress;
-  onSelectQuizAnswer: (questionId: string, optionIdx: number) => void;
+  onSelectQuizAnswer: (questionId: string, answer: number | string) => void;
   onSubmitQuiz: () => void;
   onChangeReflection: (text: string) => void;
 }
@@ -27,9 +28,11 @@ export const ChecklistQuizPanel: React.FC<Props> = ({
 }) => {
   const completedCount = progress.completedMissions.length;
   const totalMissions = algorithm.missions.length;
-  const allQuizzesAnswered = algorithm.quizzes.every(
-    (q) => progress.quizAnswers[q.id] !== undefined
-  );
+  const allQuizzesAnswered = algorithm.quizzes.every((q) => {
+    const val = progress.quizAnswers[q.id];
+    if (q.type === 'short') return typeof val === 'string' && val.trim().length > 0;
+    return val !== undefined;
+  });
   const reflectionReady = progress.reflection.trim().length >= 10;
 
   return (
@@ -127,45 +130,81 @@ export const ChecklistQuizPanel: React.FC<Props> = ({
           <div className="space-y-4">
             {algorithm.quizzes.map((q, qIdx) => {
               const selected = progress.quizAnswers[q.id];
-              const isCorrect = selected === q.correctIndex;
+              const isCorrect = isQuizAnswerCorrect(q, selected);
 
               return (
                 <div
                   key={q.id}
                   className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2"
                 >
-                  <div className="text-xs font-bold text-slate-800 leading-snug">
-                    Q{qIdx + 1}. {q.question}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="text-xs font-bold text-slate-800 leading-snug">
+                      Q{qIdx + 1}. {q.question}
+                    </div>
+                    <span
+                      className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        q.type === 'short'
+                          ? 'bg-purple-100 text-purple-700'
+                          : 'bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      {q.type === 'short' ? '서답형' : '객관식'}
+                    </span>
                   </div>
-                  <div className="space-y-1.5">
-                    {q.options.map((opt, optIdx) => {
-                      const isPicked = selected === optIdx;
-                      let btnStyle =
-                        'bg-white border-slate-200 text-slate-700 hover:bg-slate-100';
-                      if (progress.quizSubmitted) {
-                        if (optIdx === q.correctIndex) {
-                          btnStyle =
-                            'bg-emerald-50 border-emerald-400 text-emerald-900 font-bold';
-                        } else if (isPicked && !isCorrect) {
-                          btnStyle = 'bg-rose-50 border-rose-300 text-rose-800 line-through';
-                        }
-                      } else if (isPicked) {
-                        btnStyle =
-                          'bg-indigo-600 border-indigo-600 text-white font-semibold';
-                      }
 
-                      return (
-                        <button
-                          key={optIdx}
-                          type="button"
-                          onClick={() => onSelectQuizAnswer(q.id, optIdx)}
-                          className={`w-full text-left px-3 py-2 rounded-lg border text-xs transition cursor-pointer ${btnStyle}`}
-                        >
-                          {optIdx + 1}. {opt}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {q.type === 'multiple' && q.options ? (
+                    <div className="space-y-1.5">
+                      {q.options.map((opt, optIdx) => {
+                        const isPicked = selected === optIdx;
+                        let btnStyle =
+                          'bg-white border-slate-200 text-slate-700 hover:bg-slate-100';
+                        if (progress.quizSubmitted) {
+                          if (optIdx === q.correctIndex) {
+                            btnStyle =
+                              'bg-emerald-50 border-emerald-400 text-emerald-900 font-bold';
+                          } else if (isPicked && !isCorrect) {
+                            btnStyle = 'bg-rose-50 border-rose-300 text-rose-800 line-through';
+                          }
+                        } else if (isPicked) {
+                          btnStyle =
+                            'bg-indigo-600 border-indigo-600 text-white font-semibold';
+                        }
+
+                        return (
+                          <button
+                            key={optIdx}
+                            type="button"
+                            onClick={() => onSelectQuizAnswer(q.id, optIdx)}
+                            className={`w-full text-left px-3 py-2 rounded-lg border text-xs transition cursor-pointer ${btnStyle}`}
+                          >
+                            {optIdx + 1}. {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <input
+                        type="text"
+                        value={typeof selected === 'string' ? selected : ''}
+                        onChange={(e) => onSelectQuizAnswer(q.id, e.target.value)}
+                        placeholder={q.placeholder || '핵심 용어를 직접 입력하세요'}
+                        className={`w-full px-3 py-2 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                          progress.quizSubmitted
+                            ? isCorrect
+                              ? 'bg-emerald-50 border-emerald-400 text-emerald-900 font-bold'
+                              : 'bg-rose-50 border-rose-300 text-rose-900'
+                            : 'bg-white border-slate-300 text-slate-800'
+                        }`}
+                      />
+                      {progress.quizSubmitted && !isCorrect && q.acceptedAnswers && (
+                        <div className="text-[11px] font-semibold text-emerald-700">
+                          인정 정답: {q.acceptedAnswers[0]}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {progress.quizSubmitted && (
                     <div
                       className={`mt-2 p-2.5 rounded-lg text-[11px] leading-relaxed ${

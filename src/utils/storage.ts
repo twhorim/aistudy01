@@ -262,8 +262,8 @@ export const SAMPLE_SUBMISSIONS: StudentSubmissionRecord[] = [
     schoolClass: '1학년 1반',
     submittedAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
     missionProgressPercent: 100,
-    quizTotalScore: 12,
-    quizMaxScore: 12,
+    quizTotalScore: 18,
+    quizMaxScore: 18,
     reflectionCount: 6,
     algorithmDetails: {
       'linear-regression': {
@@ -335,8 +335,8 @@ export const SAMPLE_SUBMISSIONS: StudentSubmissionRecord[] = [
     schoolClass: '1학년 1반',
     submittedAt: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
     missionProgressPercent: 83,
-    quizTotalScore: 10,
-    quizMaxScore: 12,
+    quizTotalScore: 15,
+    quizMaxScore: 18,
     reflectionCount: 5,
     algorithmDetails: {
       'linear-regression': {
@@ -402,8 +402,8 @@ export const SAMPLE_SUBMISSIONS: StudentSubmissionRecord[] = [
     schoolClass: '1학년 2반',
     submittedAt: new Date(Date.now() - 1000 * 60 * 40).toISOString(),
     missionProgressPercent: 94,
-    quizTotalScore: 11,
-    quizMaxScore: 12,
+    quizTotalScore: 16,
+    quizMaxScore: 18,
     reflectionCount: 6,
     algorithmDetails: {
       'linear-regression': {

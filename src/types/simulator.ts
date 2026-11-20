@@ -21,9 +21,12 @@ export interface MissionItem {
 
 export interface QuizQuestion {
   id: string;
+  type: 'multiple' | 'short';
   question: string;
-  options: string[];
-  correctIndex: number;
+  options?: string[];
+  correctIndex?: number;
+  acceptedAnswers?: string[];
+  placeholder?: string;
   explanation: string;
 }
 
@@ -46,7 +49,7 @@ export interface AlgorithmMeta {
 
 export interface AlgorithmProgress {
   completedMissions: string[];
-  quizAnswers: Record<string, number>;
+  quizAnswers: Record<string, number | string>;
   quizSubmitted: boolean;
   quizScore: number;
   reflection: string;

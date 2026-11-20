@@ -12,7 +12,7 @@ import {
   LogOut,
   Sparkles,
 } from 'lucide-react';
-import { ALGORITHMS, ALGORITHM_MAP } from './data/algorithms';
+import { ALGORITHMS, ALGORITHM_MAP, isQuizAnswerCorrect } from './data/algorithms';
 import {
   AlgorithmId,
   AlgorithmProgress,
@@ -130,8 +130,8 @@ export function App() {
     [activeAlgId]
   );
 
-  // 퀴즈 답안 선택
-  const handleSelectQuizAnswer = (questionId: string, optionIdx: number) => {
+  // 퀴즈 답안 선택 / 입력
+  const handleSelectQuizAnswer = (questionId: string, answer: number | string) => {
     setProgress((prev) => {
       const curr = prev[activeAlgId];
       return {
@@ -140,7 +140,7 @@ export function App() {
           ...curr,
           quizAnswers: {
             ...curr.quizAnswers,
-            [questionId]: optionIdx,
+            [questionId]: answer,
           },
         },
       };
@@ -153,7 +153,7 @@ export function App() {
     const curr = progress[activeAlgId];
     let score = 0;
     for (const q of alg.quizzes) {
-      if (curr.quizAnswers[q.id] === q.correctIndex) {
+      if (isQuizAnswerCorrect(q, curr.quizAnswers[q.id])) {
         score += 1;
       }
     }

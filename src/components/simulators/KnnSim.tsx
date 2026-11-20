@@ -149,17 +149,48 @@ export const KnnSim: React.FC<Props> = ({ onCompleteMission }) => {
     const tx = toScreenX(target.x);
     const ty = toScreenY(target.y);
 
-    // K번째 이웃까지의 탐색 반경 표시
-    if (neighborsInfo.maxRadius > 0 && metric === 'euclidean') {
+    // K번째 이웃까지의 거리 원(유클리드) / 마름모(맨해튼) 반경 표시
+    if (neighborsInfo.maxRadius > 0) {
       const rx = (neighborsInfo.maxRadius / 10) * plotW;
       const ry = (neighborsInfo.maxRadius / 10) * plotH;
-      ctx.strokeStyle = 'rgba(79, 70, 229, 0.35)';
-      ctx.fillStyle = 'rgba(79, 70, 229, 0.05)';
-      ctx.lineWidth = 1.5;
+
+      ctx.save();
       ctx.beginPath();
-      ctx.ellipse(tx, ty, rx, ry, 0, 0, Math.PI * 2);
+      ctx.rect(padLeft, padTop, plotW, plotH);
+      ctx.clip();
+
+      ctx.fillStyle = 'rgba(37, 99, 235, 0.11)';
+      ctx.strokeStyle = '#2563eb';
+      ctx.lineWidth = 2.4;
+      ctx.setLineDash([7, 4]);
+
+      ctx.beginPath();
+      if (metric === 'euclidean') {
+        ctx.ellipse(tx, ty, rx, ry, 0, 0, Math.PI * 2);
+      } else {
+        // 맨해튼 거리 등거리선(마름모)
+        ctx.moveTo(tx, ty - ry);
+        ctx.lineTo(tx + rx, ty);
+        ctx.lineTo(tx, ty + ry);
+        ctx.lineTo(tx - rx, ty);
+        ctx.closePath();
+      }
       ctx.fill();
       ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 원 테두리 상단에 반경 라벨 표시
+      const labelY = Math.max(padTop + 16, ty - ry - 6);
+      const labelText = `K=${kValue} 반경 r=${neighborsInfo.maxRadius.toFixed(2)}`;
+      ctx.font = 'bold 11px Pretendard, sans-serif';
+      const tw = ctx.measureText(labelText).width;
+      const lx = Math.min(W - padRight - tw - 10, Math.max(padLeft + 6, tx - tw / 2));
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.fillRect(lx - 4, labelY - 11, tw + 8, 15);
+      ctx.fillStyle = '#1d4ed8';
+      ctx.fillText(labelText, lx, labelY);
+
+      ctx.restore();
     }
 
     // K개 최근접 이웃 연결선

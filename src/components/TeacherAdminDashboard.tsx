@@ -357,7 +357,7 @@ export const TeacherAdminDashboard: React.FC = () => {
             <div>
               <div className="text-xs text-slate-500 font-medium">학급 평균 개념 퀴즈 점수</div>
               <div className="text-2xl font-extrabold text-amber-600 mt-1">
-                {avgQuiz} <span className="text-xs font-normal text-slate-500">/ 12점 만점</span>
+                {avgQuiz} <span className="text-xs font-normal text-slate-500">/ 18점 만점</span>
               </div>
             </div>
             <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">

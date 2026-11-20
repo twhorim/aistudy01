@@ -6,13 +6,13 @@ import {
   BookOpenCheck,
   PenLine,
   Award,
+  Lock,
 } from 'lucide-react';
 import { AlgorithmMeta, AlgorithmProgress } from '../types/simulator';
 
 interface Props {
   algorithm: AlgorithmMeta;
   progress: AlgorithmProgress;
-  onToggleMissionManual: (missionId: string) => void;
   onSelectQuizAnswer: (questionId: string, optionIdx: number) => void;
   onSubmitQuiz: () => void;
   onChangeReflection: (text: string) => void;
@@ -21,7 +21,6 @@ interface Props {
 export const ChecklistQuizPanel: React.FC<Props> = ({
   algorithm,
   progress,
-  onToggleMissionManual,
   onSelectQuizAnswer,
   onSubmitQuiz,
   onChangeReflection,
@@ -35,10 +34,10 @@ export const ChecklistQuizPanel: React.FC<Props> = ({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
-      {/* 1. 단계별 실습 미션 체크리스트 */}
+      {/* 1. 단계별 실습 미션 체크리스트 (실습 수행 자동 인증 전용) */}
       <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2">
             <h3 className="font-bold text-slate-800 flex items-center gap-2 text-base">
               <BookOpenCheck className="w-5 h-5 text-indigo-600" />
               수행 과정 1: 실습 미션 체크
@@ -53,8 +52,9 @@ export const ChecklistQuizPanel: React.FC<Props> = ({
               {completedCount} / {totalMissions} 완료
             </span>
           </div>
-          <p className="text-xs text-slate-500 mb-4">
-            위 시뮬레이터를 조작하면 자동으로 체크됩니다. 직접 수행을 확인하며 클릭해도 됩니다.
+          <p className="text-xs text-slate-500 mb-4 flex items-center gap-1.5">
+            <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            위 시뮬레이터에서 미션을 직접 수행해야만 자동으로 체크됩니다.
           </p>
 
           <div className="space-y-2.5">
@@ -63,26 +63,34 @@ export const ChecklistQuizPanel: React.FC<Props> = ({
               return (
                 <div
                   key={m.id}
-                  onClick={() => onToggleMissionManual(m.id)}
-                  className={`p-3.5 rounded-xl border transition cursor-pointer flex items-start gap-3 ${
+                  className={`p-3.5 rounded-xl border transition select-none flex items-start gap-3 ${
                     isDone
                       ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
-                      : 'bg-slate-50/70 border-slate-200 hover:bg-slate-100 text-slate-800'
+                      : 'bg-slate-50/70 border-slate-200 text-slate-800'
                   }`}
                 >
                   {isDone ? (
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                   ) : (
-                    <Circle className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                    <Circle className="w-5 h-5 text-slate-300 shrink-0 mt-0.5" />
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs font-bold">{m.title}</span>
                     </div>
                     <p className="text-xs text-slate-600 mt-1 leading-relaxed">{m.description}</p>
-                    <span className="inline-block mt-1.5 text-[11px] font-semibold px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600">
-                      #{m.badgeText}
-                    </span>
+                    <div className="mt-1.5 flex items-center justify-between">
+                      <span className="inline-block text-[11px] font-semibold px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600">
+                        #{m.badgeText}
+                      </span>
+                      <span
+                        className={`text-[11px] font-bold ${
+                          isDone ? 'text-emerald-600' : 'text-slate-400'
+                        }`}
+                      >
+                        {isDone ? '자동 인증 완료' : '미수행'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -190,7 +198,7 @@ export const ChecklistQuizPanel: React.FC<Props> = ({
         </button>
       </div>
 
-      {/* 3. 서술형 실험 분석 및 느낀 점 */}
+      {/* 3. 서술형 실험 분석 및 느낀 점 (관찰 상황 가이드 포함) */}
       <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-3">
@@ -209,15 +217,24 @@ export const ChecklistQuizPanel: React.FC<Props> = ({
             </span>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-100 mb-3">
-            <div className="text-xs font-bold text-indigo-950 mb-1">💡 탐구 질문</div>
-            <p className="text-xs text-indigo-900 leading-relaxed">
+          <div className="p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-100 mb-3 space-y-2">
+            <div className="text-xs font-bold text-indigo-950">
+              📝 이런 상황을 관찰하고 기록해보세요
+            </div>
+            <p className="text-[11px] text-indigo-900 leading-relaxed">
               {algorithm.reflectionPrompt}
             </p>
+            <ul className="space-y-1 text-[11px] text-indigo-950 bg-white/80 rounded-lg p-2.5 border border-indigo-100/80">
+              {algorithm.reflectionGuideSteps.map((step, i) => (
+                <li key={i} className="leading-relaxed">
+                  {step}
+                </li>
+              ))}
+            </ul>
           </div>
 
           <textarea
-            rows={7}
+            rows={6}
             value={progress.reflection}
             onChange={(e) => onChangeReflection(e.target.value)}
             placeholder={algorithm.reflectionExampleHint}
@@ -226,7 +243,7 @@ export const ChecklistQuizPanel: React.FC<Props> = ({
         </div>
 
         <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
-          <span>입력한 내용은 자동 저장되며 제출 시 선생님께 전송됩니다.</span>
+          <span>실험하며 확인한 변화 상황을 자유롭게 적어주세요.</span>
           <span
             className={`font-semibold ${
               reflectionReady ? 'text-emerald-600' : 'text-slate-400'

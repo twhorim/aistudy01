@@ -130,25 +130,6 @@ export function App() {
     [activeAlgId]
   );
 
-  // 미션 수동 토글
-  const handleToggleMissionManual = (missionId: string) => {
-    setProgress((prev) => {
-      const curr = prev[activeAlgId];
-      const exists = curr.completedMissions.includes(missionId);
-      const nextMissions = exists
-        ? curr.completedMissions.filter((m) => m !== missionId)
-        : [...curr.completedMissions, missionId];
-      return {
-        ...prev,
-        [activeAlgId]: {
-          ...curr,
-          completedMissions: nextMissions,
-          updatedAt: new Date().toISOString(),
-        },
-      };
-    });
-  };
-
   // 퀴즈 답안 선택
   const handleSelectQuizAnswer = (questionId: string, optionIdx: number) => {
     setProgress((prev) => {
@@ -541,7 +522,6 @@ export function App() {
             <ChecklistQuizPanel
               algorithm={activeAlg}
               progress={activeProgress}
-              onToggleMissionManual={handleToggleMissionManual}
               onSelectQuizAnswer={handleSelectQuizAnswer}
               onSubmitQuiz={handleSubmitQuiz}
               onChangeReflection={handleChangeReflection}

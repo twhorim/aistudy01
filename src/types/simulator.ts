@@ -40,6 +40,7 @@ export interface AlgorithmMeta {
   missions: MissionItem[];
   quizzes: QuizQuestion[];
   reflectionPrompt: string;
+  reflectionGuideSteps: string[];
   reflectionExampleHint: string;
 }
 

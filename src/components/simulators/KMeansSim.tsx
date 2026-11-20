@@ -16,29 +16,44 @@ interface Centroid {
 
 const CLUSTER_COLORS = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
 
-const INITIAL_RAW_POINTS: Array<{ x: number; y: number }> = [
-  // 좌하단 그룹
-  { x: 2.0, y: 2.2 },
-  { x: 2.6, y: 2.8 },
-  { x: 1.8, y: 3.1 },
-  { x: 2.9, y: 1.9 },
-  { x: 3.2, y: 2.6 },
-  { x: 2.3, y: 3.5 },
-  // 우하단 그룹
-  { x: 7.4, y: 2.3 },
-  { x: 8.1, y: 2.9 },
-  { x: 7.8, y: 1.8 },
-  { x: 8.6, y: 2.4 },
-  { x: 6.9, y: 2.7 },
-  { x: 7.6, y: 3.4 },
-  // 상단 중앙 그룹
-  { x: 4.8, y: 7.6 },
-  { x: 5.4, y: 8.2 },
-  { x: 5.9, y: 7.3 },
-  { x: 4.4, y: 6.9 },
-  { x: 5.2, y: 6.8 },
-  { x: 6.1, y: 8.0 },
-];
+function generateInitial70Points(): Array<{ x: number; y: number }> {
+  // 시드 기반 난수로 항상 동일한 70개의 자연스러운 군집형 비지도 데이터 생성
+  let seed = 42107;
+  const rand = () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+  const gaussian = () => {
+    const u1 = Math.max(1e-6, rand());
+    const u2 = rand();
+    return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  };
+
+  const centers = [
+    { cx: 2.4, cy: 2.6, count: 22, spread: 0.95 }, // 좌하단 군집
+    { cx: 7.7, cy: 2.7, count: 22, spread: 0.95 }, // 우하단 군집
+    { cx: 5.1, cy: 7.5, count: 22, spread: 1.0 },  // 상단 중앙 군집
+  ];
+
+  const pts: Array<{ x: number; y: number }> = [];
+  for (const g of centers) {
+    for (let i = 0; i < g.count; i++) {
+      const x = Math.min(9.4, Math.max(0.6, g.cx + gaussian() * g.spread));
+      const y = Math.min(9.4, Math.max(0.6, g.cy + gaussian() * g.spread));
+      pts.push({ x: Number(x.toFixed(2)), y: Number(y.toFixed(2)) });
+    }
+  }
+  // 경계 부근 탐색용 중간 데이터 4개 추가 (총 70개)
+  const bridges = [
+    { x: 4.8, y: 4.6 },
+    { x: 5.5, y: 5.1 },
+    { x: 3.9, y: 5.4 },
+    { x: 6.4, y: 5.2 },
+  ];
+  return [...pts, ...bridges];
+}
+
+const INITIAL_RAW_POINTS: Array<{ x: number; y: number }> = generateInitial70Points();
 
 function makeInitialCentroids(k: number): Centroid[] {
   // 일부러 한쪽에 치우친 초기 중심점을 배치하여 이동 과정이 극적으로 보이도록 함
@@ -247,12 +262,12 @@ export const KMeansSim: React.FC<Props> = ({ onCompleteMission }) => {
       ctx.fillText(`특성Y ${i}`, 4, sy + 4);
     }
 
-    // 데이터와 소속 중심점 연결선
+    // 데이터와 소속 중심점 연결선 (70개 점이므로 가볍고 깔끔하게 표시)
     for (const pt of points) {
       if (pt.cluster >= 0 && centroids[pt.cluster]) {
         const c = centroids[pt.cluster];
-        ctx.strokeStyle = `${CLUSTER_COLORS[pt.cluster]}66`;
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = `${CLUSTER_COLORS[pt.cluster]}40`;
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(toScreenX(pt.x), toScreenY(pt.y));
         ctx.lineTo(toScreenX(c.x), toScreenY(c.y));
@@ -266,10 +281,10 @@ export const KMeansSim: React.FC<Props> = ({ onCompleteMission }) => {
       const sy = toScreenY(pt.y);
       ctx.fillStyle = pt.cluster >= 0 ? CLUSTER_COLORS[pt.cluster] : '#94a3b8';
       ctx.beginPath();
-      ctx.arc(sx, sy, 6.5, 0, Math.PI * 2);
+      ctx.arc(sx, sy, 5, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
     }
 
@@ -345,7 +360,7 @@ export const KMeansSim: React.FC<Props> = ({ onCompleteMission }) => {
               정답 레이블이 없는 학생 체력 데이터의 비지도 군집화
             </span>
             <h3 className="text-base font-bold text-slate-800 mt-1 flex items-center gap-2">
-              군집 수 K={kCount} | 진행 단계: {stepCount}회
+              군집 수 K={kCount} | 전체 데이터: {points.length}개 | 진행 단계: {stepCount}회
               {converged && (
                 <span className="inline-flex items-center gap-1 text-xs font-bold bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full">
                   <CheckCircle2 className="w-3.5 h-3.5" /> 수렴 완료!
